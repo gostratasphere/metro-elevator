@@ -1,22 +1,37 @@
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('#info-button').click(function(){
+      var station = $('#station-selector').val()
+      $.ajax('/station?name='+station, {
+        success: function(data){
+          console.log($('#station-name-head'))
+          $('#station-name-head')[0].innerHTML=station
+        }
+      })
+    });
+  });
+  
+</script>
+
 <div class="container" id="list-container">
   <nav class="navbar navbar-light bg-light">
     <a class="navbar-brand" href="#">
       <img src="/images/elevator-man.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-      I can haz metro elevator?
+      Is Metro Elevator?
     </a>
   </nav>
 
   <div class="jumbotron">
-    <h1 class="display-4">Pick your station</h1>
-    <p class="lead">Choose from the list of stations below.</p>
+    <h1 class="display-4">Pick a station</h1>
     <hr class="my-4">
-    <p>All the metro stations in the world can be found here!</p>
+    
     <p class="lead">
-      <select class="form-control form-control-lg">
-        <option>Large select</option>
-
+      <select class="form-control form-control-lg" id='station-selector'>
+        <% for (var i = 0; i < stations.length; i++) {%>
+          <option><%= stations[i] %></option>
+        <%}%>
       </select>
-      <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
     </p>
+    <a class="btn btn-primary btn-lg" id="info-button" role="button">Elevator Info</a>
   </div>
 </div>
