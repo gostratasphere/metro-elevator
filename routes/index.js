@@ -10,10 +10,11 @@ let stationNames = Array.from(new Set(stations.map(s => {
 stationNames.sort()
 
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Expressly', stations: stationNames, stationName: '' });
+  res.render('index', { title: "Where's my Metro Elevator?", stations: stationNames, stationName: '', entrances: [], incidents:[] });
 });
 
 router.get('/station', function(req, res, next) {
+  let stationArray = [];
   let station;
   let stationCodes = [];
   let incidents = [];
@@ -27,6 +28,12 @@ router.get('/station', function(req, res, next) {
   	console.log("stationCodes", stationCodes);
     let count = 0
   	stationCodes.forEach((i)=>{
+      // getStation(stations, i)
+      stations.forEach(station => {
+        if (station.stationInfo.Code == i) {
+          stationArray.push(station);
+        }
+      });
   		console.log('getting incidents for', i);
   		let options = {
 	  		url: 'https://api.wmata.com/Incidents.svc/json/ElevatorIncidents?StationCode='+i,
@@ -34,9 +41,9 @@ router.get('/station', function(req, res, next) {
 	  			api_key: wmataKey
 	  		}
 	  	}
-	  	request(options, (err, res, bod) => {
-	  		if (err) {
-	  			console.log(err);
+	  	request(options, (erro, resp, bod) => {
+	  		if (erro) {
+	  			console.log(erro);
 	  		} else {
           count++; 
 	  			console.log(typeof bod);
@@ -48,14 +55,26 @@ router.get('/station', function(req, res, next) {
 	  			}
 	  		}
         if (count == stationCodes.length) {
-          console.log(count, 'incidents', incidents);
+          // stationArray[0].stationEntrances.forEach(j => {
+
+          // })
+          console.log("stationArray", stationArray)
+          console.log("stationIncidents", incidents);
+          res.json({stationName: station, entrances: stationArray[0].stationEntrances, incidents: incidents})
         }
 	  	});
   	});
   } else {
   	station = '';
+    res.json({stationName: station});
   }
-  res.json({stationName: station});
+  
 });
+
+function getStation(stations, stationCode){
+  let stationArray = [];
+  
+  return stationArray;
+}
 
 module.exports = router;

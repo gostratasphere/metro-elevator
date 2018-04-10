@@ -1,6 +1,9 @@
 <div id="display-container">
-	<h2 id='station-name-head'><%= stationName %></h2>
-	<ul>
-		<li></li>
+	<h2 id="station-name-head"><%= stationName %></h2>
+	<ul id="entrance-list">
+		<%for (var i = 0; i < entrances.length; i++) {%>
+		<li><%= entrances[i].description %></li>
+		<%}%>
 	</ul>
+	<div id="elevator-warning"></div>
 </div>
