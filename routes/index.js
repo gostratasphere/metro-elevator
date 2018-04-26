@@ -41,8 +41,12 @@ router.get('/stat', function(req, res, next) {
 		};
 		fetch(stationUrl + "?method=renderStationStatus&stationID=" + stationId).then(d => {
 			d.text().then(data => {
-				console.log(data);
-				res.send(data);
+				const $ = cheerio.load(data);
+				$(".button").remove();
+				$(".panel-col").first().prepend("<h2>overview</h2>");
+				$(".details").first().prepend("<h2>outages</h2>")
+				console.log($.html());
+				res.send($(".panel-col").html()+$(".details").html());
 			})
 		})
 	}
@@ -72,7 +76,7 @@ router.get('/station', function(req, res, next) {
           stationArray.push(station);
         }
       });
-  		console.log('getting incidents for', i);
+  		console.log('getting incidents for', i); //i is the stationCode
   		let options = {
 	  		url: 'https://api.wmata.com/Incidents.svc/json/ElevatorIncidents?StationCode='+i,
 	  		headers: {
