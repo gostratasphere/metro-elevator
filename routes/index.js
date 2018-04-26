@@ -1,17 +1,55 @@
-var express = require('express');
-var router = express.Router();
-var request = require('request');
-var stations = require('../stations.js');
-var wmataKey = require('../wmata-api-key.js');
+const express = require('express');
+const router = express.Router();
+const request = require('request');
+const cheerio = require('cheerio');
+const fetch = require('node-fetch');
+const stations = require('../stations.js');
+const wmataKey = require('../wmata-api-key.js');
 
-let stationNames = Array.from(new Set(stations.map(s => {
+const stationNames = Array.from(new Set(stations.map(s => {
 	return s.stationInfo.Name
 })));
 stationNames.sort()
-
+ //convert to only api and react on the frontend
 router.get('/', function(req, res, next) {
   res.render('index', { title: "Where's my Metro Elevator?", stations: stationNames, stationName: '', entrances: [], incidents:[] });
 });
+
+router.get('/station-list', function(req, res, next){
+	res.json(stations);
+});
+
+router.get('/stat', function(req, res, next) {
+	let stationCode = '';
+	let stationUrl = '';
+	let stationId = '';
+	if (req.query.name && stationNames.includes(req.query.name)) {
+		console.log(req.query.name);
+  	station = req.query.name;
+  	stations.map((i)=>{
+  		if (i.stationInfo.Name == station) {
+				stationCode = i.stationInfo.Code;
+				stationId = i.stationInfo.StationId;
+				stationUrl = "https://wmata.com/components/stations.cfc"
+			}
+			console.log(stationId, stationUrl)
+
+		});
+		let body = {
+			method: "renderStationStatus",
+			stationID: stationId
+		};
+		fetch(stationUrl + "?method=renderStationStatus&stationID=" + stationId).then(d => {
+			d.text().then(data => {
+				console.log(data);
+				res.send(data);
+			})
+		})
+	}
+	else {
+		res.send('no data available');
+	}
+})
 
 router.get('/station', function(req, res, next) {
   let stationArray = [];
@@ -71,10 +109,11 @@ router.get('/station', function(req, res, next) {
   
 });
 
-function getStation(stations, stationCode){
-  let stationArray = [];
+// dont think this does anything
+// function getStation(stations, stationCode){
+//   let stationArray = [];
   
-  return stationArray;
-}
+//   return stationArray;
+// }
 
 module.exports = router;
