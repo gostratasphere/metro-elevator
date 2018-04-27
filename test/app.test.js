@@ -9,9 +9,9 @@ const expect = chai.expect;
 
 describe('App Integration Tests', () => {
     describe('GET /stat', () => {
-        for (let i = 0; i < 10; i++) {
-            let station = stations[i];
-            it('should get wmata outage html', () =>  {
+        it('should get wmata outage html', () =>  {
+            for (let i = 0; i < 10; i++) { //test for 10 items
+                let station = stations[i];
                 request(app).get('/stat?name=' + station.stationInfo.Name + '&stationId=' + station.stationInfo.StationId)
                 .end( (err, res) => {
                     expect(res.status).to.equal(200);
@@ -24,9 +24,9 @@ describe('App Integration Tests', () => {
                     expect(res.body).to.be.an('object');
                     expect(res.body.status).to.equal('error');
                     expect(res.body.message).to.equal('bad query');
-                })
-            });
-        }
+                });
+            }
+        });
     });
     describe('GET /station-list', () => {
         it('should return full list of station names', () => {
