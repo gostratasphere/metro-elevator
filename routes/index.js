@@ -8,12 +8,8 @@ const wmataKey = require('../wmata-api-key.js');
 
 const stationNames = Array.from(new Set(stations.map(s => {
 	return s.stationInfo.Name
-})));
-stationNames.sort()
- //convert to only api and react on the frontend
-router.get('/', function(req, res, next) {
-  res.render('index', { title: "Where's my Metro Elevator?", stations: stationNames, stationName: '', entrances: [], incidents:[] });
-});
+}))).sort();
+
 
 router.get('/station-list', function(req, res, next){
 	res.json(stations);
@@ -24,16 +20,13 @@ router.get('/stat', function(req, res, next) {
 	let stationUrl = '';
 	let stationId = '';
 	if (req.query.name && stationNames.includes(req.query.name)) {
-		console.log(req.query.name);
-  	station = req.query.name;
+  	const station = req.query.name;
   	stations.map((i)=>{
   		if (i.stationInfo.Name == station) {
 				stationCode = i.stationInfo.Code;
 				stationId = i.stationInfo.StationId;
 				stationUrl = "https://wmata.com/components/stations.cfc"
 			}
-			console.log(stationId, stationUrl)
-
 		});
 		let body = {
 			method: "renderStationStatus",
@@ -44,14 +37,14 @@ router.get('/stat', function(req, res, next) {
 				const $ = cheerio.load(data);
 				$(".button").remove();
 				$(".panel-col").first().prepend("<h2>overview</h2>");
-				$(".details").first().prepend("<h2>outages</h2>")
-				console.log($.html());
-				res.send($(".panel-col").html()+$(".details").html());
+				$(".ok").addClass("badge badge-success");
+				$(".station-alert").addClass("badge badge-warning");
+				res.send($.html());
 			})
 		})
 	}
 	else {
-		res.send('no data available');
+		res.status(404).send({status: "error", message: "bad query"});
 	}
 })
 
@@ -91,7 +84,7 @@ router.get('/station', function(req, res, next) {
 	  			console.log(typeof bod);
 	  			if (JSON.parse(bod).ElevatorIncidents && JSON.parse(bod).ElevatorIncidents.length > 0){
 	  				JSON.parse(bod).ElevatorIncidents.forEach(i=>{
-              console.log(i);
+              // console.log(i);
 		  				incidents.push(i);
 		  			});
 	  			}
@@ -100,8 +93,8 @@ router.get('/station', function(req, res, next) {
           // stationArray[0].stationEntrances.forEach(j => {
 
           // })
-          console.log("stationArray", stationArray)
-          console.log("stationIncidents", incidents);
+          // console.log("stationArray", stationArray)
+          // console.log("stationIncidents", incidents);
           res.json({stationName: station, entrances: stationArray[0].stationEntrances, incidents: incidents})
         }
 	  	});
